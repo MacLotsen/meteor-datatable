@@ -1,0 +1,184 @@
+<template name="datatable">
+    <form class="panel panel-default datatable">
+        <div class="panel-body">
+            <div class="page-header border-{{color}}">
+                <h4>{{title}}</h4>
+                {{#if Template.subscriptionsReady}}
+                    <small>{{count}} records / {{pageCount}} pages</small>
+                {{/if}}
+                {{#if notReady}}
+                    <label class="label label-danger">hallo</label>
+                {{/if}}
+            </div>
+            {{#if paging}}
+                <div class="form-group-sm pull-left">
+                    <div class="input-group input-group-sm">
+                        <button type="button" class="btn btn-default btn-sm form-control"><i
+                                class="fa fa-th-list"></i> {{pageLimit}}</button>
+                        <div class="input-group-btn">
+
+                            <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown"
+                                    aria-haspopup="true" aria-expanded="false"><span class="caret"></span> <span
+                                    class="sr-only">Toggle Dropdown</span></button>
+                            <ul class="dropdown-menu paging">
+                                {{#each paging.options}}
+                                    <li class="{{selectedOption this ../id}}"><a data-target-id="{{this}}">{{this}}</a>
+                                    </li>
+                                {{else}}
+                                    <li>No paging</li>
+                                {{/each}}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            {{/if}}
+            <div class="form-group-sm pull-right">
+                <div class="input-group input-group-sm">
+                    <div class="input-group-btn">
+                        <button class="btn btn-default">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+                    <input type="text" class="form-control search" placeholder="Type to search">
+                </div>
+            </div>
+            {{#if globalActions}}
+                <div class="form-group-sm pull-right">
+                    <div class="btn-group">
+                        {{#each globalActions}}
+                            <button class="btn btn-sm btn-default btn-custom"><i class="fa {{this.icon}}"></i></button>
+                        {{/each}}
+                    </div>
+                </div>
+            {{/if}}
+        </div>
+        <table class="table table-condensed table-hover table-bordered">
+            <thead>
+            <tr>
+                {{#each columns}}
+                    <th>
+                        <small>{{this.title}}</small>
+                        {{#if this.$query}}
+                            <div class="sorting pull-right"><i class="fa {{sortIcon}}"></i></div>
+                        {{/if}}
+                    </th>
+                {{/each}}
+                {{#if actions}}
+                    <th>
+                        <small class="pull-right"><i class="fa fa-cog"></i></small>
+                    </th>
+                {{/if}}
+            </tr>
+            </thead>
+            <tbody>
+            {{#if Template.subscriptionsReady}}
+                {{#each entities}}
+                    {{> entityRows object=this columns=../columns actions=../actions entity=../entity}}
+                {{/each}}
+                {{#each dummyRows}}
+                    <tr>
+                        {{#each ../columns}}
+                            <td>&nbsp;</td>
+                        {{/each}}
+                        {{#if ../actions}}
+                            <td></td>
+                        {{else if hasEdit}}
+                            <td></td>
+                        {{/if}}
+                    </tr>
+                {{/each}}
+            {{else}}
+                <tr>
+                    {{#each dummyRows}}
+                        {{#each ../columns}}
+                            <td>&nbsp;</td>
+                        {{/each}}
+                        {{#if ../actions}}
+                            <td></td>
+                        {{else if hasEdit}}
+                            <td></td>
+                        {{/if}}
+                    {{/each}}
+                </tr>
+            {{/if}}
+            </tbody>
+            <tfoot>
+
+            </tfoot>
+        </table>
+        <div class="panel-footer text-container">
+            <div class="panel-footer-left">
+                <small class="text-default">Current page: {{pageSelected}}</small>
+            </div>
+            <div class="panel-footer-right">
+                <ul class="pagination pagination-sm">
+                    <li class="{{pageHasPrevious}}">
+                        <a href="#" aria-label="Previous" data-target-id="{{pagePrevious}}">
+                            <i class="fa fa-arrow-left text-dark"></i>
+                        </a>
+                    </li>
+                    <li class="{{pageActive 1}}"><a href="#" data-target-id="1">1</a></li>
+                    {{#if Template.subscriptionsReady}}
+                        {{#each pagesBetween paging.buttons}}
+                            <li class="{{pageActive this}}">
+                                <a href="#" data-target-id="{{this}}">
+                                    {{this}}
+                                </a>
+                            </li>
+                        {{/each}}
+                        {{#if showPageCount}}
+                            <li class="{{pageActive pageCount}}">
+                                <a href="#" data-target-id="{{pageCount}}">{{pageCount}}</a>
+                            </li>
+                        {{/if}}
+                    {{/if}}
+                    <li class="{{pageHasNext}}"><a href="#" data-target-id="{{pageNext}}"><i
+                            class="fa fa-arrow-right"></i></a></li>
+                </ul>
+            </div>
+        </div>
+    </form>
+</template>
+
+<template name="entityRows">
+    <tr>
+        {{#each columns}}
+            <td>
+                {{#if editMode}}
+                    <input type="{{type}}" class="edit" name="{{$query}}" value="{{data ../object}}"/>
+                {{else if syncMode}}
+                    <input type="{{type}}" class="sync" name="{{$query}}" value="{{data ../object}}"/>
+                {{else}}
+                    {{data ../object}}
+                {{/if}}
+            </td>
+        {{/each}}
+        {{#if hasButtons}}
+            <td class="no-padding">
+                <div class="form-group-sm">
+                    <div class="btn-group btn-group-sm">
+                        {{#if hasEditables}}
+                            {{#if hasEdit}}
+                                <button class="btn btn-sm btn-default item-edit">
+                                    <i class="fa fa-edit"></i>
+                                </button>
+                            {{/if}}
+                            {{#if hasSubmit}}
+                                <button class="btn btn-sm btn-default item-cancel">
+                                    <i class="fa fa-times text-primary"></i>
+                                </button>
+                                <button class="btn btn-sm btn-default item-save">
+                                    <i class="fa fa-save text-danger"></i>
+                                </button>
+                            {{/if}}
+                        {{/if}}
+                        {{#each actions}}
+                            <button class="btn btn-sm btn-default item-btn"><i
+                                    class="fa {{this.icon}}"></i></button>
+                        {{/each}}
+                    </div>
+                </div>
+            </td>
+        {{/if}}
+    </tr>
+</template>
