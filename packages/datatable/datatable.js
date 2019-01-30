@@ -166,7 +166,7 @@ import './datatable.html';
             sess.skip = (page - 1) * Session.get(Template.instance().data.id).limit;
             Session.set(Template.instance().data.id, sess);
         },
-        'input input.search'(e) {
+        'change input.search'(e) {
             e.preventDefault();
             if (e.target.value && e.target.value.length >= 1) {
                 const query = Session.get(this.id).query;
